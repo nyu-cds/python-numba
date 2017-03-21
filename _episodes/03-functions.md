@@ -11,7 +11,9 @@ keypoints:
 Numba functions can call other Numba functions. Of course, both functions must have the `@jit` decorator, otherwise the code will be much slower.
 
 ~~~
+import numpy as np
 from numba import jit
+
 @jit("void(f4[:])",nopython=True)
 def bubblesort(X):
     N = len(X)
@@ -23,32 +25,35 @@ def bubblesort(X):
                 X[i] = X[i + 1]
                 X[i + 1] = tmp
                
-@jit
-def do_sort():
-    sorted[:] = shuffled[:]
+@jit("void(f4[:])",nopython=True)
+def do_sort(sorted):
     bubblesort(sorted)
+    
+original = np.arange(0.0, 10.0, 0.01, dtype='f4')
+shuffled = original.copy()
+np.random.shuffle(shuffled)
+sorted = shuffled.copy()
+%timeit sorted[:]=shuffled[:]; do_sort(sorted)
 ~~~
 {: .python}
 
+Running this code results in the following:
 
-The slowest run took 129.15 times longer than the fastest. This could mean that an intermediate result is being cached 
-1000 loops, best of 3: 717 µs per loop
 
-Time how long it takes to run the do_sort() function.
 
 ### NumPy universal functions
 
-Numba’s @vectorize decorator allows Python functions taking scalar input arguments to be used as NumPy ufuncs. Creating a traditional NumPy 
-ufunc is not the most straightforward process and involves writing some C code. Numba makes this easy. Using the @vectorize decorator, Numba 
-can compile a pure Python function into a ufunc that operates over NumPy arrays as fast as traditional ufuncs written in C.
+Numba’s `@vectorize` decorator allows Python functions taking scalar input arguments to be used as NumPy `ufuncs`. Creating a traditional NumPy 
+`ufunc` is not the most straightforward process and involves writing some C code. Numba makes this easy. Using the `@vectorize` decorator, Numba 
+can compile a pure Python function into a `ufunc` that operates over NumPy arrays as fast as traditional `ufuncs` written in C.
 
 The @vectorize decorator has two modes of operation:
-* Eager, or decoration-time, compilation. If you pass one or more type signatures to the decorator, you will be building a Numpy universal function 
-  (ufunc). We're just going to consider eager compilation here.
-* Lazy, or call-time, compilation. When not given any signatures, the decorator will give you a Numba dynamic universal function (DUFunc) 
+* Eager, or decoration-time, compilation. If you pass one or more type signatures to the decorator, you will be building a Numpy `ufunc`. 
+  We're just going to consider eager compilation here.
+* Lazy, or call-time, compilation. When not given any signatures, the decorator will give you a Numba dynamic universal function (`DUFunc`) 
   that dynamically compiles a new kernel when called with a previously unsupported input type.
 
-Using @vectorize, you write your function as operating over input scalars, rather than arrays. Numba will generate the surrounding loop 
+Using `@vectorize`, you write your function as operating over input scalars, rather than arrays. Numba will generate the surrounding loop 
 (or kernel) allowing efficient iteration over the actual inputs. The following code defines a function that takes two integer arrays 
 and returns an integer array.
 
@@ -69,7 +74,7 @@ print(vec_add(b, b))
 ~~~
 {: .python}
 
-This works because NumPy array elements are int64. If the elements are a different type, and the arguments cannot be safely coerced, 
+This works because NumPy array elements are `int64`. If the elements are a different type, and the arguments cannot be safely coerced, 
 then the function will raise an exception:
 
 ~~~
@@ -89,7 +94,7 @@ TypeError: ufunc 'vec_add' not supported for the input types, and the inputs cou
 {: .python}
 
 ## Challenge
-> Redefine the vec_add() function so that it takes float64 as arguments and produces the correct results.
+> Redefine the `vec_add()` function so that it takes `float64` as arguments and produces the correct results.
 >
 > from nose.tools import assert_equal
 > c = np.linspace(0, 1, 6)
