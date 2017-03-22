@@ -22,7 +22,7 @@ Numba’s main features are:
 > ## Prerequisites
 >
 > The examples in this lesson can be run directly using the Python interpreter, using IPython interactively, 
-> or using Jupyter notebooks. Anaconda users will already have Cython installed. You will also need a functioning
-> C compiler to be able to use Cython. See the [Cython installation guide](http://cython.readthedocs.io/en/latest/src/quickstart/install.html) for more details.
+> or using Jupyter notebooks. Anaconda users will already have Numba installed. See {{ page.root }}/setup for
+> information on installing Numba.
 {: .prereq}
 
