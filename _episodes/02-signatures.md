@@ -1,7 +1,7 @@
 ---
 title: "Function Signatures"
 teaching: 10
-exercises: 0
+exercises: 10
 questions:
 - "Is it possible to use function type information to improve performance with Numba?" 
 objectives:

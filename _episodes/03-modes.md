@@ -1,7 +1,7 @@
 ---
 title: "Compilation Modes"
 teaching: 10
-exercises: 0
+exercises: 10
 questions:
 - "Is it possible to ensure Numba will generate high performance code?"
 objectives:

@@ -80,14 +80,19 @@ def vec_add(x, y):
     return x + y
 
 a = np.arange(6, dtype=np.int64)
-print(vec_add(a, a))
-[ 0  2  4  6  8 10]
-
 b = np.linspace(0, 10, 6, dtype=np.int64)
+print(vec_add(a, a))
 print(vec_add(b, b))
-[ 0  4  8 12 16 20]
 ~~~
 {: .python}
+
+Running this code should produce the output:
+
+~~~
+[ 0  2  4  6  8 10]
+[ 0  4  8 12 16 20]
+~~~
+{: .output}
 
 This works because NumPy array elements are `int64`. If the elements are a different type, and the arguments cannot be safely coerced, 
 then the function will raise an exception:
@@ -112,10 +117,9 @@ TypeError: ufunc 'vec_add' not supported for the input types, and the inputs cou
 > Redefine the `vec_add()` function so that it takes `float64` as arguments.  Run it using the following to check it produces the correct results.
 >
 > ~~~
-> from nose.tools import assert_equal
 > c = np.linspace(0, 1, 6)
-> assert_equal((c * 2 == vec_add(c, c)).all(), True)
-> print("Correct!")
+> if (c * 2 == vec_add(c, c)).all():
+> 	print("Correct!")
 > ~~~
 > {: .python}
 {: .challenge}
