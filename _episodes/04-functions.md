@@ -9,6 +9,8 @@ objectives:
 - "Learn how to call Numba functions efficiently."
 - "Learn how to vectorize code for use as a `ufunc`."
 keypoints:
+- "Numba functions call other Numba functions efficiently."
+- "The `@vectorize` decorator can be used to create fast `ufuncs`.
 ---
 ## Calling other functions
 
@@ -41,9 +43,6 @@ sorted = shuffled.copy()
 ~~~
 {: .python}
 
-Running this code results in the following:
-
-
 ### NumPy universal functions
 
 Numba’s `@vectorize` decorator allows Python functions taking scalar input arguments to be used as NumPy `ufuncs`. Creating a traditional NumPy 
@@ -62,7 +61,7 @@ can compile a pure Python function into a `ufunc` that operates over NumPy array
 > Many of NumPy's [builtin operators](https://docs.scipy.org/doc/numpy-1.10.0/reference/ufuncs.html#available-ufuncs) are `ufuncs`.
 {: .callout}
 
-The @vectorize decorator has two modes of operation:
+The `@vectorize` decorator has two modes of operation:
 * Eager, or decoration-time, compilation. If you pass one or more type signatures to the decorator, you will be building a Numpy `ufunc`. 
   We're just going to consider eager compilation here.
 * Lazy, or call-time, compilation. When not given any signatures, the decorator will give you a Numba dynamic universal function (`DUFunc`) 
@@ -108,7 +107,7 @@ TypeError: ufunc 'vec_add' not supported for the input types, and the inputs cou
 ~~~
 {: .python}
 
-## Challenge
+>## Challenge
 > Redefine the `vec_add()` function so that it takes `float64` as arguments and produces the correct results.
 >
 > from nose.tools import assert_equal

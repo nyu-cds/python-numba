@@ -1,5 +1,5 @@
 ---
-title: "Compilation Options"
+title: "Compilation Modes"
 teaching: 10
 exercises: 0
 questions:

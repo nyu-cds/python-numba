@@ -8,6 +8,8 @@ objectives:
 - "Learn how to specify function signatures."
 - "Learn the different function signature notations."
 keypoints:
+- "Function signatures provide Numba with additional information that can help improve performance."
+- "Specialization can make the functions less flexible."
 ---
 It is also possible to specify the signature of the Numba function. A function signature describes the types of the arguments and the return 
 type of the function. This can produce slightly faster code as the compiler does not need to infer the types. However the function is no 
@@ -46,21 +48,8 @@ would be written `float32[:]`, or a 3-dimension array of the same underlying typ
 
 For the sort function we saw previously, the signature would be:
 
-~~~
-from numba import jit
-@jit("void(f4[:])")
-def bubblesort(X):
-   N = len(X)
-   for end in range(N, 1, -1):
-          for i in range(end - 1):
-           cur = X[i]
-           if cur > X[i + 1]:
-               tmp = X[i]
-               X[i] = X[i + 1]
-               X[i + 1] = tmp
-~~~
-{: .python}
-
 > ## Challenge
-> Time this code and see if it is any faster than the previous version.
+> What do you think the function signature for the `bubblesort` function would be? (Hint: the function does not return any value.)
+>
+> Add the funcion signature and try timing the code again. Is it any faster?
 {: .challenge}
