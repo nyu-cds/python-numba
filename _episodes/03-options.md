@@ -1,10 +1,15 @@
 ---
 title: "Compilation Options"
-teaching: 20
+teaching: 10
 exercises: 0
 questions:
+- "Is it possible to ensure Numba will generate high performance code?"
 objectives:
+- "Learn the difference between Numba's compilation modes."
+- "See what happens if Numba can't generate optimized code."
 keypoints:
+- "The `nopython` mode will generate the best performance, but has limitations."
+- "Types that can't be inferred by the compiler will generate an error."
 ---
 Numba has two compilation modes: `nopython` mode and `object` mode. 
 

@@ -1,13 +1,39 @@
 ---
-title: "Compiling Code With `@jit`"
+title: "Just-in-time Compiling"
 teaching: 20
 exercises: 0
 questions:
+- "How does Numba just-in-time compiling work?"
 objectives:
+- "Learn how to use the `@jit` decoration to improve performance."
 keypoints:
+- "The central feature of Numba is the `@jit` decoration.
 ---
-Numba's central feature is the number.jit() decoration. Using this decorator, it is possible to mark a function for optimization by Numba’s 
+Numba's central feature is the `numba.jit()` decoration. Using this decorator, it is possible to mark a function for optimization by Numba’s 
 JIT compiler. Various invocation modes trigger differing compilation options and behaviours.
+
+>## Python Decorators
+> Decorators are a way to uniformly modify functions in a particular way. You can think of them as functions that take 
+> functions as input and produce a function as output. See the 
+> [Python reference documentation](https://docs.python.org/3/reference/compound_stmts.html#function-definitions) for a detailed discussion.
+> 
+> A function definition may be wrapped by one or more [decorator](http://docs.python.org/glossary.html#term-decorator) expressions. Decorator 
+> expressions are evaluated when the function is defined, in the scope that contains the function definition. The result must be a callable, 
+> which is invoked with the function object as the only argument. The returned value is bound to the function name instead of the function object. 
+> Multiple decorators are applied in nested fashion. For example, the following code:
+>
+> @f1(arg) @f2 def func(): pass
+> 
+> is equivalent to:
+> 
+> def func(): 
+>   pass 
+> 
+> func = f1(arg)(f2(func))
+>
+> As pointed out there, they are not limited neccesarily to function definitions, and 
+> [can also be used on class definitions](https://docs.python.org/3/reference/compound_stmts.html#class-definitions).
+{: .callout}
 
 Let's see Numba in action. The following is a Python implementation of bubblesort for NumPy arrays.
 
@@ -91,29 +117,3 @@ Using the decorator in this way will defer compilation until the first function 
 
 Numba will infer the argument types at call time, and generate optimized code based on this 
 information. Numba will also be able to compile separate specializations depending on the input types.
-
->## Function Signatures
->
-> It is also possible to specify the signature of the Numba function. A function signature describes the types of the arguments and the return 
-> type of the function. This can produce slightly faster code as the compiler does not need to infer the types. However the function is no 
-> longer able to accept other types. See the numba.jit() documentation for more information on signatures. 
->
-> For the sort function, this would be:
->
-> ~~~
-> from numba import jit
-> @jit("void(f4[:])")
-> def bubblesort(X):
->    N = len(X)
->    for end in range(N, 1, -1):
->        for i in range(end - 1):
->            cur = X[i]
->            if cur > X[i + 1]:
->                tmp = X[i]
->                X[i] = X[i + 1]
->                X[i + 1] = tmp
-> ~~~
-> {: .python}
->
-> Time this code and see if it is any faster than the previous version.
-{: .challenge}

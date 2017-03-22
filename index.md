@@ -5,8 +5,8 @@ root: .
 Numba provides the ability to speed up applications with high performance functions written directly in Python, rather than using language 
 extensions such as Cython.
 
-Numba allows the compilation of selected portions of pure Python code to native code, and generates optimized machine code using the LLVM compiler 
-infrastructure. 
+Numba allows the compilation of selected portions of pure Python code to native code, and generates optimized machine code using the 
+[LLVM](http://llvm.org/) compiler infrastructure. 
 
 With a few simple annotations, array-oriented and math-heavy Python code can be just-in-time (JIT) optimized to achieve 
 performance similar to C, C++ and Fortran, without having to switch languages or Python interpreters. 

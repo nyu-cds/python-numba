@@ -1,9 +1,13 @@
 ---
 title: "Numba Functions"
-teaching: 30
-exercises: 20
+teaching: 20
+exercises: 0
 questions:
+- "Are there restrictions on calling Numba functions?"
+- "Can Numba be used to simplify the creation of `ufuncs`?"
 objectives:
+- "Learn how to call Numba functions efficiently."
+- "Learn how to vectorize code for use as a `ufunc`."
 keypoints:
 ---
 ## Calling other functions
@@ -40,12 +44,23 @@ sorted = shuffled.copy()
 Running this code results in the following:
 
 
-
 ### NumPy universal functions
 
 Numba’s `@vectorize` decorator allows Python functions taking scalar input arguments to be used as NumPy `ufuncs`. Creating a traditional NumPy 
 `ufunc` is not the most straightforward process and involves writing some C code. Numba makes this easy. Using the `@vectorize` decorator, Numba 
 can compile a pure Python function into a `ufunc` that operates over NumPy arrays as fast as traditional `ufuncs` written in C.
+
+> ## Universal functions (ufunc)
+>
+> A [universal function](https://docs.scipy.org/doc/numpy-1.10.0/reference/ufuncs.html#universal-functions-ufunc) (or `ufunc` for short) is a 
+> function that operates on NumPy arrays (`ndarrays`) in an element-by-element fashion. They
+> support array broadcasting, type casting, and several other standard features. 
+>
+> A `ufunc` is a “vectorized” wrapper for a function that takes a 
+> fixed number of scalar inputs and produces a fixed number of scalar outputs.
+>
+> Many of NumPy's [builtin operators](https://docs.scipy.org/doc/numpy-1.10.0/reference/ufuncs.html#available-ufuncs) are `ufuncs`.
+{: .callout}
 
 The @vectorize decorator has two modes of operation:
 * Eager, or decoration-time, compilation. If you pass one or more type signatures to the decorator, you will be building a Numpy `ufunc`. 
