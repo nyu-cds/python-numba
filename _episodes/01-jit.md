@@ -7,7 +7,7 @@ questions:
 objectives:
 - "Learn how to use the `@jit` decoration to improve performance."
 keypoints:
-- "The central feature of Numba is the `@jit` decoration.
+- "The central feature of Numba is the `@jit` decoration."
 ---
 Numba's central feature is the `numba.jit()` decoration. Using this decorator, it is possible to mark a function for optimization by Numba’s 
 JIT compiler. Various invocation modes trigger differing compilation options and behaviours.
