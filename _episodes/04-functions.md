@@ -10,7 +10,7 @@ objectives:
 - "Learn how to vectorize code for use as a `ufunc`."
 keypoints:
 - "Numba functions call other Numba functions efficiently."
-- "The `@vectorize` decorator can be used to create fast `ufuncs`.
+- "The `@vectorize` decorator can be used to create fast `ufuncs`."
 ---
 ## Calling other functions
 
@@ -72,6 +72,7 @@ Using `@vectorize`, you write your function as operating over input scalars, rat
 and returns an integer array.
 
 ~~~
+import numpy as np
 from numba import vectorize, int64
 ​
 @vectorize([int64(int64, int64)])
@@ -80,10 +81,10 @@ def vec_add(x, y):
 
 a = np.arange(6, dtype=np.int64)
 print(vec_add(a, a))
+[ 0  2  4  6  8 10]
+
 b = np.linspace(0, 10, 6, dtype=np.int64)
 print(vec_add(b, b))
-[ 0  2  4  6  8 10]
-[ 0  2  4  6  8 10]
 [ 0  4  8 12 16 20]
 ~~~
 {: .python}
@@ -108,10 +109,13 @@ TypeError: ufunc 'vec_add' not supported for the input types, and the inputs cou
 {: .python}
 
 >## Challenge
-> Redefine the `vec_add()` function so that it takes `float64` as arguments and produces the correct results.
+> Redefine the `vec_add()` function so that it takes `float64` as arguments.  Run it using the following to check it produces the correct results.
 >
+> ~~~
 > from nose.tools import assert_equal
 > c = np.linspace(0, 1, 6)
 > assert_equal((c * 2 == vec_add(c, c)).all(), True)
 > print("Correct!")
+> ~~~
+> {: .python}
 {: .challenge}
