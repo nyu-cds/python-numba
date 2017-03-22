@@ -22,14 +22,23 @@ JIT compiler. Various invocation modes trigger differing compilation options and
 > which is invoked with the function object as the only argument. The returned value is bound to the function name instead of the function object. 
 > Multiple decorators are applied in nested fashion. For example, the following code:
 >
-> @f1(arg) @f2 def func(): pass
+> ~~~
+> @f1(arg) 
+> @f2 
+> def func(): 
+>   pass
+> ~~~
+> {: .python}
 > 
 > is equivalent to:
 > 
+> ~~~
 > def func(): 
 >   pass 
 > 
 > func = f1(arg)(f2(func))
+> ~~~
+> {: .python}
 >
 > As pointed out there, they are not limited neccesarily to function definitions, and 
 > [can also be used on class definitions](https://docs.python.org/3/reference/compound_stmts.html#class-definitions).

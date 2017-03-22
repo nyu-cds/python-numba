@@ -22,7 +22,7 @@ Numba’s main features are:
 > ## Prerequisites
 >
 > The examples in this lesson can be run directly using the Python interpreter, using IPython interactively, 
-> or using Jupyter notebooks. Anaconda users will already have Numba installed. See {{ page.root }}/setup for
+> or using Jupyter notebooks. Anaconda users will already have Numba installed. See [Setup]({{ page.root }}/setup) for
 > information on installing Numba.
 {: .prereq}
 
