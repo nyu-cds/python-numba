@@ -9,6 +9,7 @@ keypoints:
 ## Terminology
 
 Several important terms in the topic of CUDA programming are listed here:
+
 host
 : the CPU
 
@@ -132,7 +133,7 @@ def my_kernel(io_array):
 
 A kernel is typically launched in the following way:
 
-~~
+~~~
 import numpy
 ​
 # Create the data array - usually initialized some other way
