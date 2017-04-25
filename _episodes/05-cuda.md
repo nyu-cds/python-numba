@@ -1,11 +1,29 @@
 ---
 title: "CUDA Programming"
-teaching: 20
-exercises: 0
+teaching: 40
+exercises: 30
 questions:
+- "How does CUDA programming with Numba work?"
+- "What CUDA features are available in Numba?"
 objectives:
+- "Understand how to write CUDA programs using Numba."
+- "Understand how Numba deals with CUDA threads."
+- "Understand how Numba supports the CUDA memory models." 
 keypoints:
+- "Numba provides an easy way to write CUDA programs."
+- "Many CUDA features are provided by Numba."
+- "Some of the low level CUDA API features are not supported by Numba."
 ---
+Numba supports CUDA GPU programming by directly compiling a restricted subset of Python code into CUDA kernels and device functions following the 
+CUDA execution model.
+
+One feature that significantly simplifies writing GPU kernels is that Numba makes it appear that the kernel has direct access to NumPy arrays. 
+NumPy arrays that are supplied as arguments to the kernel are transferred between the CPU and the GPU automatically (although this can also be an issue).
+
+Numba does not yet implement the full CUDA API, so some features are not available. However the features that are provided are enough to begin 
+experimenting with writing GPU enable kernels. CUDA support in Numba is being actively developed, so eventually most of the features should be 
+available.
+
 ## Terminology
 
 Several important terms in the topic of CUDA programming are listed here:
