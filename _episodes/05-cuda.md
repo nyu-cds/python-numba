@@ -52,11 +52,18 @@ It is possible to obtain a list of all the GPUs in the system using the followin
 
 ~~~
 from numba import cuda
-print cuda.gpus
+print(cuda.gpus)
 ~~~
 {: .python}
 
-If you do not have a CUDA-enabled GPU on your system, you will receive the following error:
+If you do not have a CUDA-enabled GPU on your system, you will receive one of the following errors:
+
+~~~
+numba.cuda.cudadrv.error.CudaDriverError: CUDA initialized before forking
+~~~ 
+{: .output}
+
+or possibly
 
 ~~~
 CudaSupportError: Error at driver init: 
@@ -84,8 +91,8 @@ is determined by the CUDA libraries). The context is associated with the current
 
 ## Using the CUDA simulator
 
-If you don't have a CUDA-enabled GPU, then you will need to use the CUDA simulator. The simulator is enabled by setting the environment variable 
-`NUMBA_ENABLE_CUDASIM` to 1.
+If you don't have a CUDA-enabled GPU (i.e. you received one of the error messages described previously), then you will need to use the CUDA simulator. 
+The simulator is enabled by setting the environment variable `NUMBA_ENABLE_CUDASIM` to 1.
 
 ### Mac/Linux
 
@@ -138,6 +145,7 @@ while a kernel is compiled once, it can be called multiple times with different 
 
 ~~~
 from numba import cuda
+
 @cuda.jit
 def my_kernel(io_array):
     """
@@ -217,7 +225,6 @@ this doesn’t change anything to the efficiency or behaviour of generated code,
 One way is for the thread to determines its position in the grid and block and manually compute the corresponding array position:
 
 ~~~
-from numba import cuda
 @cuda.jit
 def my_kernel(io_array):
     # Thread id in a 1D block
@@ -262,7 +269,6 @@ given number of integers is returned.
 Using these functions, the our example can become:
 
 ~~~
-from numba import cuda
 @cuda.jit
 def my_kernel2(io_array):
     pos = cuda.grid(1)
@@ -271,53 +277,108 @@ def my_kernel2(io_array):
 ~~~ 
 {: .python}
 
-Now we can run the host code that calls the kernel. Notice that the grid computation when instantiating the kernel must still be done manually.
+Now we need to add the host code that calls the kernel. Notice that the grid computation when instantiating the kernel must still be done manually.
+
+The complete program should be called `cuda1.py` and is shown below.	
 
 ~~~
 from __future__ import division
+from numba import cuda
 import numpy
 import math
 
+# CUDA kernel
+@cuda.jit
+def my_kernel(io_array):
+    pos = cuda.grid(1)
+    if pos < io_array.size:
+        io_array[pos] *= 2 # do the computation
+
+# Host code   
 data = numpy.ones(256)
 threadsperblock = 256
 blockspergrid = math.ceil(data.shape[0] / threadsperblock)
-my_kernel2[blockspergrid, threadsperblock](data)
+my_kernel[blockspergrid, threadsperblock](data)
 print(data)
 ~~~
 {: .python}
 
-Assuming that `x, y = cuda.grid(2)` returns the thread indices, rewrite the kernel to work if `io_array` is a 2-dimensional array. Make sure that 
-you verify that `x` and `y` are within the bounds of the array.
+Now run the program with the following command (remember to set `NUMBA_ENABLE_CUDASIM=1` if you don't have an NVIDIA GPU):
 
 ~~~
-from numba import cuda
-@cuda.jit
-def my_kernel_2D(io_array):
-    ### BEGIN SOLUTION
-    x, y = cuda.grid(2)
-    if x < io_array.shape[0] and y < io_array.shape[1]:
-        io_array[x, y] *= 2
-    ### END SOLUTION
-   ~~~
-{: .python}
- 
-Now run the kernel using the following host program.
+python cuda1.py 
+~~~
+{: .bash}
+
+You should see the following output:
 
 ~~~
-from __future__ import division
-
-import numpy
-import math
-
-data = numpy.ones((16, 16))
-threadsperblock = (16, 16)
-blockspergrid_x = math.ceil(data.shape[0] / threadsperblock[0])
-blockspergrid_y = math.ceil(data.shape[1] / threadsperblock[1])
-blockspergrid = (blockspergrid_x, blockspergrid_y)
-my_kernel_2D[blockspergrid, threadsperblock](data)
-print(data)
+[ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.
+  2.  2.  2.  2.]
 ~~~
-{: .python}
+{: .output}
+
+> ## Challenge
+> Assuming that `x, y = cuda.grid(2)` returns the thread indices, rewrite the kernel to work if `io_array` is a 2-dimensional array. Make sure that 
+> you verify that `x` and `y` are within the bounds of the array (use `io_array.shape` instead of `io_array.size`). Run the kernel using the 
+> following host program.
+> 
+> ~~~
+> from __future__ import division
+> from numba import cuda
+> import numpy
+> import math
+> 
+> @cuda.jit
+> def my_kernel_2D(io_array):
+>     x, y = cuda.grid(2)
+>     ### YOUR SOLUTION HERE
+>  
+> data = numpy.ones((16, 16))
+> threadsperblock = (16, 16)
+> blockspergrid_x = math.ceil(data.shape[0] / threadsperblock[0])
+> blockspergrid_y = math.ceil(data.shape[1] / threadsperblock[1])
+> blockspergrid = (blockspergrid_x, blockspergrid_y)
+> my_kernel_2D[blockspergrid, threadsperblock](data)
+> print(data)
+> ~~~
+> {: .python}
+>
+> Here is the output you should see if the kernel is correct:
+>
+> ~~~
+> [[ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]
+>  [ 2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.  2.]]
+> ~~~
+> {: .output}
+{: .challenge}
 
 ## Memory management
 
@@ -342,7 +403,8 @@ Allocate and transfer a NumPy `ndarray` to the device.
 ### A more complex example: matrix multiplication
 
 The following code sample is a straightforward implementation of matrix multiplication for matrices where each thread reads one row of `A` and 
-one column of `B` and computes the corresponding element of `C`.
+one column of `B` and computes the corresponding element of `C`. For input arrays where `A.shape == (m, n)` and `B.shape == (n, p)` then
+the result shape will be `C.shape = (m, p)`.
 
 ![matrix multiplication]({{ page.root }}/fig/05-matmul.png "matrix multiplication")
 
@@ -360,39 +422,62 @@ def matmul(A, B, C):
 ~~~
 {:. python}
 
-Run the host code to see how the kernel works for the input arrays. Notice that the number of threads per block and blocks per grid is not really 
-important, other than to ensure that there are enough threads to complete the calcualtion.
+The host code must create and initiliaze the A and B arrays, then move them to the device. Next, it must allocate space on the device for the result
+array. Once the kernel has completed, the result array must be copied back to the host so that it can be displayed. 
+
+Create a program called `cuda2.py` using the code below to see how the kernel works for the input arrays. Notice that the number of threads per block 
+and blocks per grid is not really important, other than to ensure that there are enough threads to complete the calculation.
 
 ~~~
 from __future__ import division
-
+from numba import cuda
 import numpy
 import math
 
-# The data array
-mat1 = numpy.full((24, 12), 3, numpy.float) # matrix containing all 3's
-mat2 = numpy.full((12, 22), 4, numpy.float) # matrix containing all 4's
+# CUDA kernel
+@cuda.jit
+def matmul(A, B, C):
+    """Perform matrix multiplication of C = A * B
+    """
+    row, col = cuda.grid(2)
+    if row < C.shape[0] and col < C.shape[1]:
+        tmp = 0.
+        for k in range(A.shape[1]):
+            tmp += A[row, k] * B[k, col]
+        C[row, col] = tmp
+        
+# Host code
 
-d_mat1 = cuda.to_device(mat1)
-d_mat2 = cuda.to_device(mat2)
-d_mat3 = cuda.device_array((24, 22))
+# Initialize the data arrays
+A = numpy.full((24, 12), 3, numpy.float) # matrix containing all 3's
+B = numpy.full((12, 22), 4, numpy.float) # matrix containing all 4's
+
+# Copy the arrays to the device
+A_global_mem = cuda.to_device(A)
+B_global_mem = cuda.to_device(B)
+
+# Allocate memory on the device for the result
+C_global_mem = cuda.device_array((24, 22))
 
 # Configure the blocks
-threadsperblock = (16, 16)
-blockspergrid_x = int(math.ceil(mat1.shape[0] / threadsperblock[0]))
-blockspergrid_y = int(math.ceil(mat1.shape[1] / threadsperblock[1]))
+threadsperblock = (32, 32)
+blockspergrid_x = int(math.ceil(A.shape[0] / threadsperblock[0]))
+blockspergrid_y = int(math.ceil(A.shape[1] / threadsperblock[1]))
 blockspergrid = (blockspergrid_x, blockspergrid_y)
 
 # Start the kernel 
-matmul[blockspergrid, threadsperblock](d_mat1, d_mat2, d_mat3)
-res = d_mat3.copy_to_host()
+matmul[blockspergrid, threadsperblock](A_global_mem, B_global_mem, C_global_mem)
 
-print(res)
+# Copy the result back to the host
+C = C_global_mem.copy_to_host()
+
+print(C)
 ~~~
 {: .python}
 
-A problem with this code is that each thread is reading from the global memory containing `A` and `B`. In fact, `A` is read `B.shape[1]` times and 
-`B` is read `A.shape[0]` times. Since global memory is fairly slow, this results in an inefficient use of the GPU.
+A problem with this code is that each thread is reading from the global memory containing the copies of `A` and `B`. In fact, the `A` global memory
+is read `B.shape[1]` times and the `B` global memory is read `A.shape[0]` times. Since global memory is fairly slow, this results in an inefficient 
+use of the GPU.
 
 ### Shared memory and thread synchronization
 
@@ -415,10 +500,11 @@ shared_array = cuda.shared.array(shape,type)
 
 The memory is allocated once for the duration of the kernel, unlike traditional dynamic memory management.
 
-Because the shared memory is a limited resource, it is often necessary to preload a small block at a time from the input arrays. The threads 
-then need to to wait until all threads have finished preloading before doing the computation on the shared memory. Synchronization is then 
-required again after the computation to ensure all threads have finished with the data in shared memory before overwriting it in the next 
-loop iteration.
+Because the shared memory is a limited resource, it is often necessary to preload a small block at a time from the input arrays. All the threads 
+then need to wait until everyone has finished preloading before doing the computation on the shared memory. 
+
+Synchronization is then required again after the computation to ensure all threads have finished with the data in shared memory before 
+overwriting it in the next loop iteration.
 
 The function to synchronized threads is:
 
@@ -428,17 +514,16 @@ cuda.syncthreads()
 {: .python}
 
 This function will synchronize all threads in the same thread block. This function implements the same pattern as barriers in traditional
-multi-threaded programming. The program will wait until all threads in the block call the function, at which point it returns control to all 
-its callers.
+multi-threaded programming and the `MPI.Barrier()` function. The program will wait until all threads in the block call the function, at 
+which point it returns control to all its callers.
 
 ### Improved matrix multiplication
 
-The following example shows how shared memory can be used when performing matrix multiplication. For input arrays of shape [`m` x `n`] and [`n` x `p`] 
-the result will be [`m` x `p`].
+The following example shows how shared memory can be used when performing matrix multiplication. 
 
 In this example, each thread block is responsible for computing a square sub-matrix of `C` and each thread for computing an element of the sub-matrix. 
 The sub-matrix is equal to the product of a square sub-matrix of `A` (`sA`) and a square sub-matrix of `B` (`sB`). In order to fit into the device 
-resources, the two input matrices are divided into as many square sub-matrices of dimension TPB as necessary, and the result computed as the 
+resources, the two input matrices are divided into as many square sub-matrices of dimension `TPB` as necessary, and the result computed as the 
 sum of the products of these square sub-matrices.
 
 Each product is performed by first loading `sA` and `sB` from global memory to shared memory, with one thread loading each element of each sub-matrix. 
@@ -451,7 +536,10 @@ is read `A.shape[0] / TPB` times.
 ![matrix multiplication using shared memory]({{ page.root }}/fig/05-matmulshared.png "matrix multiplication using shared memory")
 
 ~~~
+from __future__ import division
 from numba import cuda, float32
+import numpy
+import math
 
 # Controls threads per block and shared memory usage.
 # The computation will be done on blocks of TPBxTPB elements.
@@ -497,35 +585,27 @@ def fast_matmul(A, B, C):
         cuda.syncthreads()
 
     C[x, y] = tmp
-~~~
-{: .python}
-
-Run your new kernel using the host program below to verify that it works correctly.
-
-~~~
-from __future__ import division
-
-import numpy
-import math
 
 # The data array
-mat1 = numpy.full((TPB*2, TPB*3), 3, numpy.float) # [32 x 48] matrix containing all 3's
-mat2 = numpy.full((TPB*3, TPB*1), 4, numpy.float) # [48 x 16] matrix containing all 4's
+A = numpy.full((TPB*2, TPB*3), 3, numpy.float) # [32 x 48] matrix containing all 3's
+B = numpy.full((TPB*3, TPB*1), 4, numpy.float) # [48 x 16] matrix containing all 4's
 
-d_mat1 = cuda.to_device(mat1)
-d_mat2 = cuda.to_device(mat2)
-d_mat3 = cuda.device_array((TPB*2, TPB*1)) # [32 x 16] matrix result
+A_global_mem = cuda.to_device(mat1)
+B_global_mem = cuda.to_device(mat2)
+C_global_mem = cuda.device_array((TPB*2, TPB*1)) # [32 x 16] matrix result
 
 # Configure the blocks
 threadsperblock = (TPB, TPB)
-blockspergrid_x = int(math.ceil(mat1.shape[0] / threadsperblock[1]))
-blockspergrid_y = int(math.ceil(mat2.shape[1] / threadsperblock[0]))
+blockspergrid_x = int(math.ceil(A.shape[0] / threadsperblock[1]))
+blockspergrid_y = int(math.ceil(B.shape[1] / threadsperblock[0]))
 blockspergrid = (blockspergrid_x, blockspergrid_y)
 
 # Start the kernel 
-fast_matmul[blockspergrid, threadsperblock](d_mat1, d_mat2, d_mat3)
-res = d_mat3.copy_to_host()
+fast_matmul[blockspergrid, threadsperblock](A_global_mem, B_global_mem, C_global_mem)
+res = C_global_mem.copy_to_host()
 
 print(res)
 ~~~
 {: .python}
+
+Create a new program called `cuda3.py` using your new kernel and the host program to verify that it works correctly.
