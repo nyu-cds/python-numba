@@ -32,9 +32,9 @@ B_global_mem = cuda.to_device(B)
 C_global_mem = cuda.device_array((24, 22))
 
 # Configure the blocks
-threadsperblock = (32, 32)
+threadsperblock = (16, 16)
 blockspergrid_x = int(math.ceil(A.shape[0] / threadsperblock[0]))
-blockspergrid_y = int(math.ceil(A.shape[1] / threadsperblock[1]))
+blockspergrid_y = int(math.ceil(B.shape[1] / threadsperblock[1]))
 blockspergrid = (blockspergrid_x, blockspergrid_y)
 
 # Start the kernel 

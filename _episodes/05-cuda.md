@@ -214,12 +214,12 @@ usually selected to maximize the "occupancy". See the
 
 ## Thread positioning
 
-When running a kernel, the kernel function’s code is executed by every thread once. It therefore has to know which thread it is in, in o
-rder to know which array element(s) it is responsible for (complex algorithms may define more complex responsibilities, but the underlying 
-principle is the same).
+When running a kernel, the kernel function’s code is executed by every thread once. It therefore has to know which thread it is in, in 
+order to know which array element(s) it is responsible for. More complex algorithms may define more complex responsibilities, but the underlying 
+principle is the same.
 
 To help deal with multi-dimensional arrays, CUDA allows you to specify multi-dimensional blocks and grids. In the example above, you could 
-make blockspergrid and threadsperblock tuples of one, two or three integers. Compared to 1-dimensional declarations of equivalent sizes, 
+make `blockspergrid` and `threadsperblock` tuples of one, two or three integers. Compared to 1-dimensional declarations of equivalent sizes, 
 this doesn’t change anything to the efficiency or behaviour of generated code, but can help you write your algorithms in a more natural way.
 
 One way is for the thread to determines its position in the grid and block and manually compute the corresponding array position:
@@ -245,11 +245,11 @@ Note: Unless you are sure the block size and grid size is a divisor of your arra
 The following special objects are provided by the CUDA backend for the sole purpose of knowing the geometry of the thread hierarchy and the 
 position of the current thread within that geometry:
 - `numba.cuda.threadIdx` - The thread indices in the current thread block. For 1-dimensional blocks, the index (given by the x attribute) is an 
-integer spanning the range from 0 to numba.cuda.blockDim - 1. A similar rule exists for each dimension when more than one dimension is used.
+integer spanning the range from 0 to `numba.cuda.blockDim` - 1. A similar rule exists for each dimension when more than one dimension is used.
 - `numba.cuda.blockDim` - The shape of the block of threads, as declared when instantiating the kernel. This value is the same for all threads 
 in a given kernel, even if they belong to different blocks (i.e. each block is “full”).
-- `numba.cuda.blockIdx` - The block indices in the grid of threads launched a kernel. For a 1-dimensional grid, the index (given by the x attribute) 
-is an integer spanning the range from 0 to numba.cuda.gridDim - 1. A similar rule exists for each dimension when more than one dimension is used.
+- `numba.cuda.blockIdx` - The block indices in the grid of threads launched a kernel. For a 1-dimensional grid, the index (given by the `x` attribute) 
+is an integer spanning the range from 0 to `numba.cuda.gridDim` - 1. A similar rule exists for each dimension when more than one dimension is used.
 - `numba.cuda.gridDim` - The shape of the grid of blocks, i.e. the total number of blocks launched by this kernel invocation, as declared when 
 instantiating the kernel.
 
@@ -422,7 +422,7 @@ def matmul(A, B, C):
 ~~~
 {:. python}
 
-The host code must create and initiliaze the A and B arrays, then move them to the device. Next, it must allocate space on the device for the result
+The host code must create and initiliaze the `A` and `B` arrays, then move them to the device. Next, it must allocate space on the device for the result
 array. Once the kernel has completed, the result array must be copied back to the host so that it can be displayed. 
 
 Create a program called `cuda2.py` using the code below to see how the kernel works for the input arrays. Notice that the number of threads per block 
@@ -460,9 +460,9 @@ B_global_mem = cuda.to_device(B)
 C_global_mem = cuda.device_array((24, 22))
 
 # Configure the blocks
-threadsperblock = (32, 32)
+threadsperblock = (16, 16)
 blockspergrid_x = int(math.ceil(A.shape[0] / threadsperblock[0]))
-blockspergrid_y = int(math.ceil(A.shape[1] / threadsperblock[1]))
+blockspergrid_y = int(math.ceil(B.shape[1] / threadsperblock[1]))
 blockspergrid = (blockspergrid_x, blockspergrid_y)
 
 # Start the kernel 
