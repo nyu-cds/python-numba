@@ -63,11 +63,15 @@ numba.cuda.cudadrv.error.CudaDriverError: CUDA initialized before forking
 ~~~ 
 {: .output}
 
-or possibly
-
 ~~~
 CudaSupportError: Error at driver init: 
 [3] Call to cuInit results in CUDA_ERROR_NOT_INITIALIZED:
+~~~ 
+{: .output}
+
+~~~
+numba.cuda.cudadrv.error.CudaDriverError: Error at driver init:
+CUDA disabled by user:
 ~~~ 
 {: .output}
 
