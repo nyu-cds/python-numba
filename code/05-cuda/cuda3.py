@@ -55,8 +55,8 @@ def fast_matmul(A, B, C):
 A = numpy.full((TPB*2, TPB*3), 3, numpy.float) # [32 x 48] matrix containing all 3's
 B = numpy.full((TPB*3, TPB*1), 4, numpy.float) # [48 x 16] matrix containing all 4's
 
-A_global_mem = cuda.to_device(mat1)
-B_global_mem = cuda.to_device(mat2)
+A_global_mem = cuda.to_device(A)
+B_global_mem = cuda.to_device(B)
 C_global_mem = cuda.device_array((TPB*2, TPB*1)) # [32 x 16] matrix result
 
 # Configure the blocks
